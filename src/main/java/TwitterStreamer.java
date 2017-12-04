@@ -27,11 +27,17 @@ public class TwitterStreamer {
 
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(10000);
         List<Long> userIds = asList();
-        String searchTerms = getenv("TWITTER_TERMS") != null ? getenv("TWITTER_TERMS") : "test";
+        String searchTerms = getenv("TWITTER_TERMS") != null ? getenv("TWITTER_TERMS") : "happy";
         List<String> terms = asList(searchTerms.split(","));
-        BasicClient client = configureStreamClient(msgQueue, getenv("TWITTER_KEYS"), userIds, terms);
+        //BasicClient client = configureStreamClient(msgQueue, getenv("TWITTER_KEYS"), userIds, terms);
+        //TWITTER_KEYS="consumerKey:consumerSecret:authToken:authSecret";
 
-        Neo4jWriter writer = new Neo4jWriter(getenv("NEO4J_URL"));
+        String TWITTER_KEYS="I8KdkJQ3E8YHL1zJZgz1FLJOM:gjzGa0XVKxcdJfmE9A5xaRyxGu1dqgJa8GoW4r1DqXMltqcbrS:1635806574-9YMLOTPr5ELDE0NXpASPv3XscjUEGIFrNuZAy0Z:wP7oAOV1rcZzvlzg1t6DZvMPH9mK5Xg3iHrW2s6AuHlVM";
+        BasicClient client = configureStreamClient(msgQueue, TWITTER_KEYS, userIds, terms);
+        //TwitterNeo4jWriter writer = new TwitterNeo4jWriter(getenv("NEO4J_URL"));
+        String NEO4J_URL = "bolt://neo4j:159456852123@localhost:7687";//bolt://neo4j:****@localhost:7678
+        //127.0.0.1:7687
+        Neo4jWriter writer = new Neo4jWriter(NEO4J_URL);
         writer.init();
         int numProcessingThreads = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
         ExecutorService service = Executors.newFixedThreadPool(numProcessingThreads);
