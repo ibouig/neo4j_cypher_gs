@@ -8,6 +8,9 @@ import com.twitter.hbc.httpclient.BasicClient;
 import com.twitter.hbc.httpclient.auth.Authentication;
 import com.twitter.hbc.httpclient.auth.OAuth1;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class TwitterStreamer {
 
     private static final int BATCH = 100;
 
-    public static void main(String... args) throws InterruptedException, MalformedURLException, URISyntaxException {
+    public static void main(String... args) throws InterruptedException, MalformedURLException, URISyntaxException, FileNotFoundException, UnsupportedEncodingException {
         int maxReads = 1000000;
 
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(10000);
@@ -57,6 +60,12 @@ public class TwitterStreamer {
             if (buffer.size() < BATCH) continue;
 
             List<String> tweets = buffer;
+            //System.out.println(tweets);
+            PrintWriter fileWriter = new PrintWriter("the-file-name.txt", "UTF-8");
+            fileWriter.println(tweets);
+
+            fileWriter.close();
+
             service.submit(() -> writer.insert(tweets,3));
             buffer = new ArrayList<>(BATCH);
         }
