@@ -73,7 +73,7 @@ class Neo4jWriter {
             "    user.lang = u.lang,\n" +
             "    user.contributors_enabled = u.contributors_enabled,\n" +
             "    user.is_translator = u.is_translator,\n" +
-            "    user.profile_background_color = u.profile_background_color,\n" +
+            /*"    user.profile_background_color = u.profile_background_color,\n" +
             "    user.profile_background_image_url = u.profile_background_image_url,\n" +
             "    user.profile_background_image_url_https = u.profile_background_image_url_https,\n" +
             "    user.profile_background_tile = u.profile_background_tile,\n" +
@@ -86,7 +86,7 @@ class Neo4jWriter {
             "    user.profile_image_url_https = u.profile_image_url_https,\n" +
             "    user.profile_banner_url = u.profile_banner_url,\n" +
             "    user.default_profile = u.default_profile,\n" +
-            "    user.default_profile_image = u.default_profile_image,\n" +
+            "    user.default_profile_image = u.default_profile_image,\n" +*/
             "    user.following = u.following,\n" +
             "    user.follow_request_sent = u.follow_request_sent,\n" +
             "    user.notifications = u.notifications\n" +
