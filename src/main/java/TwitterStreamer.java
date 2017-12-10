@@ -29,22 +29,31 @@ public class TwitterStreamer {
     public static void main(String... args) throws InterruptedException, MalformedURLException, URISyntaxException, FileNotFoundException, UnsupportedEncodingException {
         int maxReads = 1000000;
 
+        //twitter
+        String consumerKey="I8KdkJQ3E8YHL1zJZgz1FLJOM";
+        String consumerSecret="gjzGa0XVKxcdJfmE9A5xaRyxGu1dqgJa8GoW4r1DqXMltqcbrS";
+        String authToken="1635806574-9YMLOTPr5ELDE0NXpASPv3XscjUEGIFrNuZAy0Z";
+        String authSecret="wP7oAOV1rcZzvlzg1t6DZvMPH9mK5Xg3iHrW2s6AuHlVM";
+        //Neo4j
+
+        String neo4j_user="neo4j";
+        String neo4j_pass="159456852123";
+        String neo4j_host="localhost";
+        String neo4j_port="7687";
+        //bolt://neo4j:****@localhost:7678          //127.0.0.1:7687
+        String NEO4J_URL="bolt://"+neo4j_user+":"+neo4j_pass+"@"+neo4j_host+":"+neo4j_port;
+
+        //Keywords
+        String searchTerms = "palestine,quds,jerusalem,israel,قدس,أقصى,فلسطين,إسرائيل";
+
+
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(10000);
         List<Long> userIds = asList();
-        String searchTerms = getenv("TWITTER_TERMS") != null ? getenv("TWITTER_TERMS") : "palestine";
         List<String> terms = asList(searchTerms.split(","));
-        //BasicClient client = configureStreamClient(msgQueue, getenv("TWITTER_KEYS"), userIds, terms);
-        //TWITTER_KEYS="consumerKey:consumerSecret:authToken:authSecret";
-        List<Location> locations = new ArrayList<>();
-        locations.add(new Location(new Location.Coordinate(12,12) , new Location.Coordinate(13,13)));
 
-        String TWITTER_KEYS="I8KdkJQ3E8YHL1zJZgz1FLJOM:gjzGa0XVKxcdJfmE9A5xaRyxGu1dqgJa8GoW4r1DqXMltqcbrS:1635806574-9YMLOTPr5ELDE0NXpASPv3XscjUEGIFrNuZAy0Z:wP7oAOV1rcZzvlzg1t6DZvMPH9mK5Xg3iHrW2s6AuHlVM";
+        String TWITTER_KEYS= consumerKey + ":" + consumerSecret + ":" + authToken + ":" + authSecret ;
         BasicClient client = configureStreamClient(msgQueue, TWITTER_KEYS, userIds, terms);
-        //BasicClient client = configureStreamClientByLocation(msgQueue, TWITTER_KEYS, userIds, locations);
-        //BasicClient client = configureStreamClientByTrends(msgQueue, TWITTER_KEYS, userIds, locations);
-        //TwitterNeo4jWriter writer = new TwitterNeo4jWriter(getenv("NEO4J_URL"));
-        String NEO4J_URL = "bolt://neo4j:159456852123@localhost:7687";//bolt://neo4j:****@localhost:7678
-        //127.0.0.1:7687
+
         Neo4jWriter writer = new Neo4jWriter(NEO4J_URL);
         writer.init();
         int numProcessingThreads = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
@@ -65,10 +74,11 @@ public class TwitterStreamer {
             if (buffer.size() < BATCH) continue;
 
             List<String> tweets = buffer;
+            //Output to a file or terminal
+
             //System.out.println(tweets);
             //PrintWriter fileWriter = new PrintWriter("jsonFeed.json", "UTF-8");
             //fileWriter.println(tweets);
-
             //fileWriter.close();
 
             service.submit(() -> writer.insert(tweets,3));
