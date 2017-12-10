@@ -2,6 +2,7 @@ import com.twitter.hbc.ClientBuilder;
 import com.twitter.hbc.core.Constants;
 import com.twitter.hbc.core.Hosts;
 import com.twitter.hbc.core.HttpHosts;
+import com.twitter.hbc.core.endpoint.Location;
 import com.twitter.hbc.core.endpoint.StatusesFilterEndpoint;
 import com.twitter.hbc.core.processor.StringDelimitedProcessor;
 import com.twitter.hbc.httpclient.BasicClient;
@@ -30,13 +31,17 @@ public class TwitterStreamer {
 
         BlockingQueue<String> msgQueue = new LinkedBlockingQueue<String>(10000);
         List<Long> userIds = asList();
-        String searchTerms = getenv("TWITTER_TERMS") != null ? getenv("TWITTER_TERMS") : "happy";
+        String searchTerms = getenv("TWITTER_TERMS") != null ? getenv("TWITTER_TERMS") : "palestine";
         List<String> terms = asList(searchTerms.split(","));
         //BasicClient client = configureStreamClient(msgQueue, getenv("TWITTER_KEYS"), userIds, terms);
         //TWITTER_KEYS="consumerKey:consumerSecret:authToken:authSecret";
+        List<Location> locations = new ArrayList<>();
+        locations.add(new Location(new Location.Coordinate(12,12) , new Location.Coordinate(13,13)));
 
         String TWITTER_KEYS="I8KdkJQ3E8YHL1zJZgz1FLJOM:gjzGa0XVKxcdJfmE9A5xaRyxGu1dqgJa8GoW4r1DqXMltqcbrS:1635806574-9YMLOTPr5ELDE0NXpASPv3XscjUEGIFrNuZAy0Z:wP7oAOV1rcZzvlzg1t6DZvMPH9mK5Xg3iHrW2s6AuHlVM";
         BasicClient client = configureStreamClient(msgQueue, TWITTER_KEYS, userIds, terms);
+        //BasicClient client = configureStreamClientByLocation(msgQueue, TWITTER_KEYS, userIds, locations);
+        //BasicClient client = configureStreamClientByTrends(msgQueue, TWITTER_KEYS, userIds, locations);
         //TwitterNeo4jWriter writer = new TwitterNeo4jWriter(getenv("NEO4J_URL"));
         String NEO4J_URL = "bolt://neo4j:159456852123@localhost:7687";//bolt://neo4j:****@localhost:7678
         //127.0.0.1:7687
@@ -81,6 +86,45 @@ public class TwitterStreamer {
                 .followings(userIds)
                 .trackTerms(terms);
         endpoint.stallWarnings(false);
+
+        String[] keys = twitterKeys.split(":");
+        Authentication auth = new OAuth1(keys[0], keys[1], keys[2], keys[3]);
+
+        ClientBuilder builder = new ClientBuilder()
+                .name("Neo4j-Twitter-Stream")
+                .hosts(hosts)
+                .authentication(auth)
+                .endpoint(endpoint)
+                .processor(new StringDelimitedProcessor(msgQueue));
+
+        return builder.build();
+    }
+
+    private static BasicClient configureStreamClientByLocation(BlockingQueue<String> msgQueue, String twitterKeys, List<Long> userIds, List<Location> locations) {
+        Hosts hosts = new HttpHosts(Constants.STREAM_HOST);
+        StatusesFilterEndpoint endpoint = new StatusesFilterEndpoint().locations(locations);
+
+                //.followings(userIds)
+                //.trackTerms(terms);
+        endpoint.stallWarnings(false);
+
+        String[] keys = twitterKeys.split(":");
+        Authentication auth = new OAuth1(keys[0], keys[1], keys[2], keys[3]);
+
+        ClientBuilder builder = new ClientBuilder()
+                .name("Neo4j-Twitter-Stream")
+                .hosts(hosts)
+                .authentication(auth)
+                .endpoint(endpoint)
+                .processor(new StringDelimitedProcessor(msgQueue));
+
+        return builder.build();
+    }
+
+    private static BasicClient configureStreamClientByTrends(BlockingQueue<String> msgQueue, String twitterKeys, List<Long> userIds, List<Location> locations) {
+        Hosts hosts = new HttpHosts(Constants.STREAM_HOST);
+        TrendsEndpoint endpoint = new TrendsEndpoint("https://api.twitter.com/1.1/trends/place.json","GET");
+        //endpoint.stallWarnings(false);
 
         String[] keys = twitterKeys.split(":");
         Authentication auth = new OAuth1(keys[0], keys[1], keys[2], keys[3]);
