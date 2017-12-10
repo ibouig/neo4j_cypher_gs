@@ -61,7 +61,7 @@ public class TwitterStreamer {
 
             List<String> tweets = buffer;
             //System.out.println(tweets);
-            PrintWriter fileWriter = new PrintWriter("the-file-name.txt", "UTF-8");
+            PrintWriter fileWriter = new PrintWriter("jsonFeed.json", "UTF-8");
             fileWriter.println(tweets);
 
             fileWriter.close();
