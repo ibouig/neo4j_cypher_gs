@@ -66,10 +66,10 @@ public class TwitterStreamer {
 
             List<String> tweets = buffer;
             //System.out.println(tweets);
-            PrintWriter fileWriter = new PrintWriter("jsonFeed.json", "UTF-8");
-            fileWriter.println(tweets);
+            //PrintWriter fileWriter = new PrintWriter("jsonFeed.json", "UTF-8");
+            //fileWriter.println(tweets);
 
-            fileWriter.close();
+            //fileWriter.close();
 
             service.submit(() -> writer.insert(tweets,3));
             buffer = new ArrayList<>(BATCH);
