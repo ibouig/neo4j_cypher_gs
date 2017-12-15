@@ -179,3 +179,134 @@ UNWIND {tweets} AS t
         MERGE (retweet_tweet:Tweet {id:retweet_id})
         MERGE (tweet)-[:RETWEETED]->(retweet_tweet)
     )
+#########
+
+UNWIND {tweets} AS t
+    WITH t,
+        t.contributorsIDs as contributors,
+        t.retweetedStatus AS retweetedStatus,
+        t.userMentionEntities AS userMentionEntities,
+        t.urlEntities AS urlEntities,
+        t.hashtagEntities AS hashtagEntities,
+        t.mediaEntities AS mediaEntities,
+        t.symbolEntities AS symbolEntities,
+        t.user AS u
+    WHERE t.id is not null
+
+    MERGE (tweet:Tweet {id:t.id})
+    SET
+        tweet.text = t.text,
+        tweet.createdAt = t.createdAt,
+        tweet.source = t.source,
+        tweet.isTruncated = t.isTruncated,
+        tweet.isFavorited = t.isFavorited,
+        tweet.isRetweeted = t.isRetweeted,
+        tweet.favoriteCount = t.favoriteCount,
+        tweet.retweetCount = t.retweetCount,
+        tweet.isPossiblySensitive = t.isPossiblySensitive,
+        tweet.lang = t.lang,
+        tweet.currentUserRetweetId = t.currentUserRetweetId,
+        tweet.quotedStatusId = t.quotedStatusId
+
+    MERGE (user:User {screenName:u.screenName})
+    SET
+        user.name = u.name,
+        user.id = u.id,
+        user.location = u.location,
+        user.isProtected = u.isProtected,
+        user.followersCount = u.followersCount,
+        user.friendsCount = u.friendsCount,
+        user.createdAt = u.createdAt,
+        user.favouritesCount = u.favouritesCount,
+        user.utcOffset = u.utcOffset,
+        user.lang = u.lang
+
+    MERGE (user)-[:POSTED]->(tweet)
+    FOREACH (h IN hashtagEntities |
+        MERGE (tag:Tag {text:LOWER(h.text)})
+        MERGE (tag)<-[:TAGGED]-(tweet)
+    )
+    FOREACH (u IN [u IN urlEntities WHERE u.expandedURL IS NOT NULL] |
+        MERGE (url:Link {url:u.expandedURL})
+        MERGE (tweet)-[:LINKED]->(url)
+    )
+    FOREACH (m IN [m IN mediaEntities WHERE m.id IS NOT NULL] |
+        MERGE (media:Media {id:m.id})
+        ON CREATE SET
+          media.mediaURL= m.mediaURL
+        MERGE (tweet)-[:CONTAINED]->(media)
+    )
+    FOREACH (m IN userMentionEntities |
+        MERGE (mentioned:User {screenName:m.screenName})
+        ON CREATE SET
+          mentioned.name = m.name,
+          mentioned.id = m.id
+        MERGE (tweet)-[:MENTIONED]->(mentioned)
+    )
+    FOREACH (r IN [r IN [t.inReplyToStatusId] WHERE r IS NOT NULL AND r <> -1 ] |
+        MERGE (reply_tweet:Tweet {id:r})
+        MERGE (tweet)-[:REPLIED_TO]->(reply_tweet)
+    )
+    
+
+    FOREACH (r IN [r IN [retweetedStatus] WHERE r IS NOT NULL AND r <> -1 ] |
+    
+    
+        MERGE (retweet_tweet:Tweet {id:r.id})
+        SET
+            retweet_tweet.text = r.text,
+            retweet_tweet.createdAt = r.createdAt,
+            retweet_tweet.source = r.source,
+            retweet_tweet.isTruncated = r.isTruncated,
+            retweet_tweet.isFavorited = r.isFavorited,
+            retweet_tweet.isRetweeted = r.isRetweeted,
+            retweet_tweet.favoriteCount = r.favoriteCount,
+            retweet_tweet.retweetCount = r.retweetCount,
+            retweet_tweet.isPossiblySensitive = r.isPossiblySensitive,
+            retweet_tweet.lang = r.lang,
+            retweet_tweet.currentUserRetweetId = r.currentUserRetweetId,
+            retweet_tweet.quotedStatusId = r.quotedStatusId
+        
+        MERGE (tweet)-[:RETWEETED]->(retweet_tweet)
+
+        MERGE (user:User {screenName:r.user.screenName})
+        SET
+            user.name = r.user.name,
+            user.id = r.user.id,
+            user.location = r.user.location,
+            user.isProtected = r.user.isProtected,
+            user.followersCount = r.user.followersCount,
+            user.friendsCount = r.user.friendsCount,
+            user.createdAt = r.user.createdAt,
+            user.favouritesCount = r.user.favouritesCount,
+            user.utcOffset = r.user.utcOffset,
+            user.lang = r.user.lang
+
+        MERGE (user)-[:POSTED]->(retweet_tweet)
+
+        FOREACH (h IN r.hashtagEntities |
+            MERGE (tag:Tag {text:LOWER(h.text)})
+            MERGE (tag)<-[:TAGGED]-(retweet_tweet)
+        )
+        FOREACH (u IN [u IN r.urlEntities WHERE u.expandedURL IS NOT NULL] |
+            MERGE (url:Link {url:u.expandedURL})
+            MERGE (retweet_tweet)-[:LINKED]->(url)
+        )
+        FOREACH (m IN [m IN r.mediaEntities WHERE m.id IS NOT NULL] |
+            MERGE (media:Media {id:m.id})
+            ON CREATE SET
+              media.mediaURL= m.mediaURL
+            MERGE (retweet_tweet)-[:CONTAINED]->(media)
+        )
+        FOREACH (m IN r.userMentionEntities |
+            MERGE (mentioned:User {screenName:m.screenName})
+            ON CREATE SET
+              mentioned.name = m.name,
+              mentioned.id = m.id
+            MERGE (retweet_tweet)-[:MENTIONED]->(mentioned)
+        )
+        FOREACH ( a IN [ a IN [r.inReplyToStatusId] WHERE a IS NOT NULL AND a <> -1 ] |
+            MERGE (reply_tweet_tweet:Tweet {id:a})
+            MERGE (reply_tweet)-[:REPLIED_TO]->(reply_tweet_tweet)
+        )
+    )
