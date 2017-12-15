@@ -31,6 +31,61 @@
         <artifactId>gson</artifactId>
         <version>2.8.0</version>
     </dependency>
+
+
+    <dependency>
+        <groupId>org.neo4j.driver</groupId>
+        <artifactId>neo4j-java-driver</artifactId>
+        <version>1.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.hdrhistogram</groupId>
+        <artifactId>HdrHistogram</artifactId>
+        <version>2.1.9</version>
+    </dependency>
+    <dependency>
+        <groupId>com.twitter</groupId>
+        <artifactId>hbc-twitter4j</artifactId>
+        <version>2.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.8.0</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-core</artifactId>
+        <version>[4.0,)</version>
+    </dependency>
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-async</artifactId>
+        <version>[4.0,)</version>
+    </dependency>
+    <!--
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-appengine</artifactId>
+        <version>[4.0,)</version>
+    </dependency>-->
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-http2-support</artifactId>
+        <version>[4.0,)</version>
+    </dependency>
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-media-support</artifactId>
+        <version>[4.0,)</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-examples</artifactId>
+        <version>[4.0,)</version>
+    </dependency>
 </dependencies>
 
 <build>

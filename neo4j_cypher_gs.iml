@@ -23,8 +23,14 @@
     <orderEntry type="library" name="Maven: com.twitter:joauth:6.0.2" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.findbugs:jsr305:1.3.9" level="project" />
     <orderEntry type="library" name="Maven: com.google.guava:guava:14.0.1" level="project" />
-    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-stream:4.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.0" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-async:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-http2-support:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-media-support:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-examples:4.0.6" level="project" />
   </component>
 </module>
