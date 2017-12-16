@@ -87,7 +87,7 @@ public class TwitterStreamer {
                 if (buffer.size() >= BATCH) {
                     List<String> tweets = buffer;
                     buffer = new ArrayList<>(BATCH);
-                    System.out.println(tweets);
+                    //System.out.println(tweets);
 
                     service.submit(() -> writer.insert(tweets,3));
                 }
