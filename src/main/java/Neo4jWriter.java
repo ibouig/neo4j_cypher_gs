@@ -1,13 +1,12 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.summary.ResultSummary;
 
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toList;
@@ -17,7 +16,9 @@ import static java.util.stream.Collectors.toList;
  * @author saidbouig
  */
 class Neo4jWriter {
-    static String STATEMENT = "UNWIND {tweets} AS t\n" +
+
+    private static Driver driver;
+    private static String STATEMENT = "UNWIND {tweets} AS t\n" +
             "    WITH t,\n" +
             "        t.contributorsIDs as contributors,\n" +
             "        t.retweetedStatus AS retweetedStatus,\n" +
@@ -151,7 +152,6 @@ class Neo4jWriter {
             "    \n" +
             "    )"
             ;
-    private Driver driver;
 
     public Neo4jWriter(String neo4jUrl) throws URISyntaxException {
         URI boltUri = new URI(neo4jUrl);
@@ -165,7 +165,6 @@ class Neo4jWriter {
             session.run("CREATE CONSTRAINT ON (u:User) ASSERT u.screenName IS UNIQUE");
             session.run("CREATE CONSTRAINT ON (t:Tag) ASSERT t.text IS UNIQUE");
             session.run("CREATE CONSTRAINT ON (l:Link) ASSERT l.url IS UNIQUE");
-            session.run("CREATE CONSTRAINT ON (p:Place) ASSERT p.id IS UNIQUE");
             session.run("CREATE CONSTRAINT ON (m:Media) ASSERT m.id IS UNIQUE");
 
         }
@@ -175,8 +174,14 @@ class Neo4jWriter {
         driver.close();
     }
 
+    /**
+     * Inserts tweets to neo4j using STATEMENT
+     * @param tweets
+     * @param retries
+     * @return
+     */
     public int insert(List<String> tweets, int retries) {
-        //System.out.println("TWEET "+tweets.get(0) );
+
         while (retries > 0) {
             try (Session session = driver.session()) {
                 Gson gson = new GsonBuilder().create();
@@ -192,14 +197,8 @@ class Neo4jWriter {
                 System.out.flush();
 
                 if(created == 0 ) {
-                    System.out.println(" ############################## " +statuses.get(0).get("id"));
-
+                    System.out.println(" ###### couldn't insert tweet with id:" +statuses.get(0).get("id"));
                 }
-
-                //System.out.println(tweets.get(0));
-                //System.out.println(tweets.get(1));
-
-                //System.out.println(statuses.get(1));
 
                 return created;
             } catch (Exception e) {
@@ -209,7 +208,5 @@ class Neo4jWriter {
         }
         return -1;
     }
-
-
 
 }

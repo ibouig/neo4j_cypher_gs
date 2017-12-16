@@ -109,17 +109,17 @@
 
 ########
 
-UNWIND {tweets} AS t
-    WITH t,
-        t.contributorsIDs as contributors,
-        t.retweetedStatus AS retweetedStatus,
-        t.userMentionEntities AS userMentionEntities,
-        t.urlEntities AS urlEntities,
-        t.hashtagEntities AS hashtagEntities,
-        t.mediaEntities AS mediaEntities,
-        t.symbolEntities AS symbolEntities,
-        t.user AS u
-    WHERE t.id is not null
+    UNWIND {tweets} AS t
+        WITH t,
+            t.contributorsIDs as contributors,
+            t.retweetedStatus AS retweetedStatus,
+            t.userMentionEntities AS userMentionEntities,
+            t.urlEntities AS urlEntities,
+            t.hashtagEntities AS hashtagEntities,
+            t.mediaEntities AS mediaEntities,
+            t.symbolEntities AS symbolEntities,
+            t.user AS u
+        WHERE t.id is not null
 
     MERGE (tweet:Tweet {id:t.id})
     SET
@@ -181,17 +181,17 @@ UNWIND {tweets} AS t
     )
 #########
 
-UNWIND {tweets} AS t
-    WITH t,
-        t.contributorsIDs as contributors,
-        t.retweetedStatus AS retweetedStatus,
-        t.userMentionEntities AS userMentionEntities,
-        t.urlEntities AS urlEntities,
-        t.hashtagEntities AS hashtagEntities,
-        t.mediaEntities AS mediaEntities,
-        t.symbolEntities AS symbolEntities,
-        t.user AS u
-    WHERE t.id is not null
+    UNWIND {tweets} AS t
+        WITH t,
+            t.contributorsIDs as contributors,
+            t.retweetedStatus AS retweetedStatus,
+            t.userMentionEntities AS userMentionEntities,
+            t.urlEntities AS urlEntities,
+            t.hashtagEntities AS hashtagEntities,
+            t.mediaEntities AS mediaEntities,
+            t.symbolEntities AS symbolEntities,
+            t.user AS u
+        WHERE t.id is not null
 
     MERGE (tweet:Tweet {id:t.id})
     SET
