@@ -11,6 +11,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-core:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-async:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-http2-support:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okhttp3:okhttp:3.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.squareup.okio:okio:1.6.0" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-media-support:4.0.6" level="project" />
+    <orderEntry type="library" name="Maven: org.twitter4j:twitter4j-examples:4.0.6" level="project" />
     <orderEntry type="library" name="Maven: org.neo4j.driver:neo4j-java-driver:1.2.0" level="project" />
     <orderEntry type="library" name="Maven: org.hdrhistogram:HdrHistogram:2.1.9" level="project" />
     <orderEntry type="library" name="Maven: com.twitter:hbc-twitter4j:2.2.0" level="project" />

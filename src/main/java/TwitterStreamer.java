@@ -27,7 +27,7 @@ public class TwitterStreamer {
     private static String neo4j_pass="159456852123";
     private static String neo4j_host="localhost";
     private static String neo4j_port="7687";
-    private static String[] twitterTerms = {"palestine","trump"};
+    private static String[] twitterTerms = {"palestine","quds","jerusalem","israel","إسرائيل","فلسطين","أقصى","قدس"};
 
     public static void main(String[] args) throws TwitterException, IOException, URISyntaxException, InterruptedException {
         //Neo4j
