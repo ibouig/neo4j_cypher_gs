@@ -18,16 +18,72 @@ import java.util.concurrent.*;
  */
 public class TwitterStreamer {
 
-    private static final int BATCH = 2;// Controls buffer's size
+    private static final int BATCH = 10;// Controls buffer's size
     private static Neo4jWriter writer;
     private static ExecutorService service;
     private static List<String> buffer;
-    private static Twitter twitter;
+
+    private static TwitterStream twitterStream;
     private static String neo4j_user="neo4j";
     private static String neo4j_pass="159456852123";
     private static String neo4j_host="localhost";
     private static String neo4j_port="7687";
     private static String[] twitterTerms = {"palestine","quds","jerusalem","israel","إسرائيل","فلسطين","أقصى","قدس"};
+    private static int accountNumber=4;
+    private static int currentInUse=0;
+
+    private static List<Twitter> twitterList;
+
+    public static void initTwitterAccounts() {
+        twitterList = new ArrayList<>();
+        //webogeeks
+        ConfigurationBuilder cb1 = new ConfigurationBuilder();
+        cb1.setDebugEnabled(true)
+                .setOAuthConsumerKey("JqIPBeczDxrO1bXlNnQr36wh7")
+                .setOAuthConsumerSecret("V7SkD107JcsPwoA7eeCYXpN78Bq5ySJ4xriVs85pZ6yASxSnOK")
+                .setOAuthAccessToken("2736990925-jbottSBXTRZYEkttWEeT9sOfgpmfQDDQBcOX8xP")
+                .setOAuthAccessTokenSecret("qiVi76t9P82CvA7gboJ1r17Mech3kbGrdan0YQenLVE5q")
+                .setDebugEnabled(true);
+        //levelflow
+        ConfigurationBuilder cb2 = new ConfigurationBuilder();
+        cb2.setDebugEnabled(true)
+                .setOAuthConsumerKey("IfKeKpi6cDiYmB3MGWyOopHTe")
+                .setOAuthConsumerSecret("rqoFYjjzXfkxq5jTWEAS8nrJdYDc3frKVoYG7VMY85KDOafFx4")
+                .setOAuthAccessToken("942180519609028610-STRzBLAPgkDI8OxXHvz5QmscNASmZaO")
+                .setOAuthAccessTokenSecret("8D9igsVkBZ7uF2qPhTZ8bbSmvlr548yA5i908BOO5krfF")
+                .setDebugEnabled(true);
+        //imad
+        ConfigurationBuilder cb3 = new ConfigurationBuilder();
+        cb3.setDebugEnabled(true)
+                .setOAuthConsumerKey("o9smIdj53ZCSuNmbGf4MT3WUy")
+                .setOAuthConsumerSecret("JRvoZ5IzLJP87jGU3XAPZ4CRZ01pxQVLSZqbAY5Qjr9KSePr2F")
+                .setOAuthAccessToken("3754040477-30H7jaacz17wbqBalA3jwg8lMK8aCxYLHnt4ViU")
+                .setOAuthAccessTokenSecret("jPtmuZa2grTvFtnx4rSBUcV6Lkkue8bmxvygV1O4C7LoH")
+                .setDebugEnabled(true);
+        //sara
+        ConfigurationBuilder cb4 = new ConfigurationBuilder();
+        cb4.setDebugEnabled(true)
+                .setOAuthConsumerKey("1DIaKVZbLG41qMfvTsU9pFPkT")
+                .setOAuthConsumerSecret("AdgzNIC75VEn0vA6BFZc9rTas4HTAsABFDpqK7p6W63XTswP1l")
+                .setOAuthAccessToken("942911397494706176-lNuMAcp4DdH5rgpayBP6RwbTvSnNBff")
+                .setOAuthAccessTokenSecret("aw5QguG73KVTESkfmLp6BMud2VZi3UHBz71S47v9wFWGP")
+                .setDebugEnabled(true);
+
+        TwitterFactory tf = new TwitterFactory(cb1.build());
+        twitterList.add(tf.getInstance());
+
+
+        tf = new TwitterFactory(cb2.build());
+        twitterList.add(tf.getInstance());
+
+        tf = new TwitterFactory(cb3.build());
+        twitterList.add(tf.getInstance());
+
+        tf = new TwitterFactory(cb4.build());
+        twitterList.add(tf.getInstance());
+
+
+    }
 
     public static void main(String[] args) throws TwitterException, IOException, URISyntaxException, InterruptedException {
         //Neo4j
@@ -36,18 +92,11 @@ public class TwitterStreamer {
         List<String> tweets = new ArrayList<>();
         buffer = new ArrayList<>(BATCH);
 
-        //Twitter Stream config
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey("JqIPBeczDxrO1bXlNnQr36wh7")
-                .setOAuthConsumerSecret("V7SkD107JcsPwoA7eeCYXpN78Bq5ySJ4xriVs85pZ6yASxSnOK")
-                .setOAuthAccessToken("2736990925-jbottSBXTRZYEkttWEeT9sOfgpmfQDDQBcOX8xP")
-                .setOAuthAccessTokenSecret("qiVi76t9P82CvA7gboJ1r17Mech3kbGrdan0YQenLVE5q")
-                .setDebugEnabled(true);
+
 
         //Twitter api config
-        ConfigurationBuilder cb_ = new ConfigurationBuilder();
-        cb_.setDebugEnabled(true)
+        ConfigurationBuilder cb = new ConfigurationBuilder();
+        cb.setDebugEnabled(true)
                 .setOAuthConsumerKey("I8KdkJQ3E8YHL1zJZgz1FLJOM")
                 .setOAuthConsumerSecret("gjzGa0XVKxcdJfmE9A5xaRyxGu1dqgJa8GoW4r1DqXMltqcbrS")
                 .setOAuthAccessToken("1635806574-9YMLOTPr5ELDE0NXpASPv3XscjUEGIFrNuZAy0Z")
@@ -60,29 +109,80 @@ public class TwitterStreamer {
         //Listener for Twitter Streamer
         StatusListener listener = new StatusListener(){
             public void onStatus(Status status) {
-                //add current tweet
-                buffer.add(copyToJsonString(status));
+                List<Status> statusList =new ArrayList<>();
+                int retries = 0;
+                boolean done =false;
                 //get tweets related to that tweet
-                try {
-                    //adding tweets from user's timeline
-                    List<Status> statusList = TwitterStreamer.twitter.getUserTimeline(status.getUser().getScreenName());
-                    //adding tweets from user's timeline to whome current tweet replies
-                    if(status.getInReplyToScreenName()!=null)
-                        statusList.addAll(TwitterStreamer.twitter.getUserTimeline(status.getInReplyToScreenName()));
-                    //adding tweets from users timeline , mentioned in current tweet
-                    if(status.getUserMentionEntities().length!=0){
-                        for (UserMentionEntity u:status.getUserMentionEntities()) {
-                            statusList.addAll(TwitterStreamer.twitter.getUserTimeline(u.getScreenName()));
-                        }
-                    }
-                    //adding result to buffer
-                    for (Status s:statusList) {
-                        buffer.add(copyToJsonString(s));
+                do{
+                    try {
+                        //adding tweets from user's timeline
+                        statusList.addAll(TwitterStreamer.twitterList.get(currentInUse).getUserTimeline(status.getUser().getScreenName()));
+                        done=true;
+                    } catch (TwitterException e) {
+                        e.printStackTrace();
+                        currentInUse= (currentInUse+1) % accountNumber;
+                        System.out.println("1 switching twitter account to :"+currentInUse);
+                        done=false;
                     }
 
-                } catch (TwitterException e) {
-                    e.printStackTrace();
-                }
+                    retries++;
+
+                }while(!done && retries<accountNumber);
+
+                retries=0;
+                do{
+                    try {
+                        //adding tweets from user's timeline to whome current tweet replies
+                        if (status.getInReplyToScreenName() != null)
+                            statusList.addAll(TwitterStreamer.twitterList.get(currentInUse).getUserTimeline(status.getInReplyToScreenName()));
+                        done=true;
+
+                    } catch (TwitterException e) {
+                        e.printStackTrace();
+                        currentInUse= (currentInUse+1) % accountNumber;
+                        System.out.println("2 switching twitter account to :"+currentInUse);
+                        done=false;
+                    }
+                    retries++;
+                }while(!done && retries<accountNumber);
+
+
+
+                //adding tweets from users timeline , mentioned in current tweet
+                    if(status.getUserMentionEntities().length!=0){
+                        for (UserMentionEntity u:status.getUserMentionEntities()) {
+                            retries=0;
+                            do{
+                                try {
+                                    statusList.addAll(TwitterStreamer.twitterList.get(currentInUse).getUserTimeline(u.getScreenName()));
+                                    done=true;
+                                } catch (TwitterException e) {
+                                    e.printStackTrace();
+                                    currentInUse= (currentInUse+1) % accountNumber;
+                                    System.out.println("3 switching twitter account to :"+currentInUse);
+                                    done=false;
+                                }
+                                retries++;
+
+                            }while(!done && retries<accountNumber);
+
+                        }
+                    }
+
+                    if(done){
+                        //adding result to buffer
+                        for (Status s:statusList) {
+                            buffer.add(copyToJsonString(s));
+                        }
+                        //add current tweet
+                        buffer.add(copyToJsonString(status));
+                    }else{
+                        System.out.println("a Tweet has been ignored du to API limite Rate");
+                    }
+
+
+
+
                 //insert tweets to neo4j db when buffer is full
                 if (buffer.size() >= BATCH) {
                     List<String> tweets = buffer;
@@ -105,11 +205,14 @@ public class TwitterStreamer {
         //Initialize Twitter streamer
         Configuration configuration = cb.build();
         TwitterStreamFactory twitterStreamFactory = new TwitterStreamFactory(configuration);
-        TwitterStream twitterStream = twitterStreamFactory.getInstance();
+        twitterStream = twitterStreamFactory.getInstance();
         twitterStream.addListener(listener);
+
         //Initialize Twitter API
-        TwitterFactory tf = new TwitterFactory(cb_.build());
-        twitter = tf.getInstance();
+        //TwitterFactory tf = new TwitterFactory(cb_.build());
+        //twitter = tf.getInstance();
+
+        initTwitterAccounts();
         //Threads
         int numProcessingThreads = Math.max(1,Runtime.getRuntime().availableProcessors() - 1);
         service = Executors.newFixedThreadPool(numProcessingThreads);
