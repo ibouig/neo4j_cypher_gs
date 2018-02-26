@@ -1,3 +1,5 @@
+package com.ibouig.neo4jCypherGS;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import twitter4j.*;
@@ -103,7 +105,7 @@ public class TwitterStreamer {
                 .setOAuthAccessTokenSecret("wP7oAOV1rcZzvlzg1t6DZvMPH9mK5Xg3iHrW2s6AuHlVM")
                 .setDebugEnabled(true);
 
-        //initialize Neo4jWriter
+        //initialize com.ibouig.neo4jCypherGS.Neo4jWriter
         writer = new Neo4jWriter(NEO4J_URL);
         writer.init();
         //Listener for Twitter Streamer

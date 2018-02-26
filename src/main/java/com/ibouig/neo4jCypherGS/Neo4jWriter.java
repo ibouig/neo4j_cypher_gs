@@ -1,3 +1,5 @@
+package com.ibouig.neo4jCypherGS;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.neo4j.driver.v1.*;

@@ -118,7 +118,7 @@
                 </descriptorRefs>
                 <archive>
                     <manifest>
-                        <mainClass>neo4j.load.twitter.LoadGenerator</mainClass>
+                        <mainClass>com.ibouig.neo4jCypherGS.TwitterStreamer</mainClass>
                     </manifest>
                 </archive>
             </configuration>
