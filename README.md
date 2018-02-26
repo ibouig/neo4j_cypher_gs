@@ -34,6 +34,8 @@ After compile run :
 from browser 
 
     MATCH (n)-[r]->(m) RETURN n,r,m;
+    
+    call apoc.export.csv.query("MATCH (n)-[r]->(m) RETURN n,r,m","results.csv",{})
 
 from console 
 
